@@ -1,0 +1,6 @@
+int main(){
+    int i;
+    int number = 12;
+    i = i + 1;
+    nested = 10;
+}

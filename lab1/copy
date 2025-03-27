@@ -1,0 +1,53 @@
+INT [1-9][0-9]{0,31}|0  
+// INT8 [1-7][0-7]{0,31}|0
+// INT16 0x[0-9A-Fa-f]{0,4}
+FLOAT [-+]?[0-9]*\.[0-9]+
+// FLOATE [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
+ID [_a-zA-Z][_0-9A-Za-z]*
+RELOP >|<|>=|<=|==|!=
+DIGIT [0-9]
+TYPE int|float
+
+%%
+{INT} {printf("int1234");}
+// {INT8} {printf("int8");}
+// {INT16} {printf("int16");}
+{FLOAT} {printf("float");}
+// {FLOATE} {printf("floatE");}
+{ID} {printf("id");}
+{RELOP} {printf("relop");}
+{DIGIT} {printf("digit");}
+{TYPE} {printf("TYPE");}
+";" {printf("SEMI");}
+"," {printf("COMMA");}
+"=" {printf("ASSIGNOP");}
+"+" {printf("PLUS");}
+"-" {printf("MINUS");}
+"*" {printf("STAR");}
+"/" {printf("DIV");}
+"&&" {printf("AND");}
+"||" {printf("OR");}
+"." {printf("DOT");}
+"!" {printf("NOT");}
+"(" {printf("LP");}
+")" {printf("RP");}
+"[" {printf("LB");}
+"]" {printf("RB");}
+"{" {printf("LC");}
+"}" {printf("RC");}
+"struct" {printf("STRUCT");}
+"return" {printf("RETURN");}
+"if" {printf("IF");}
+"else" {printf("ELSE");}
+"while" {printf("WHILE");}
+#       return 0;
+%%
+
+int main(int argc, char* argv[]) {
+    yylex();
+    return 0;
+}
+
+int yywrap() { 
+    return 1;
+}
