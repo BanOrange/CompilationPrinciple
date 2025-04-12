@@ -613,9 +613,11 @@ char *yytext;
 #line 4 "./lexical.l"
 # include <stdio.h>
 # include <stdlib.h>
+# include "node.h"
 # include "syntax.tab.h"
-int yycolumn = 1; // 设置yycolumn 初始值为 1
+# include "global.h"
 
+int yycolumn = 1; // 设置yycolumn 初始值为 1
 
 #define YY_USER_ACTION\
     yylloc.first_line=yylloc.last_line=yylineno;\
@@ -624,27 +626,13 @@ int yycolumn = 1; // 设置yycolumn 初始值为 1
     yycolumn+=yyleng;  // 实验指导书的定义宏，更新行列信息
 
 
-struct Node* create_Node_lexical(char* name) {
-    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node)); 
-    newnode->childNumber=0;  // 判别值为0
-    newnode->child=NULL; // 子节点为空
-    newnode->brother=NULL; // 兄弟节点为空
-    newnode->linenumber = 0; // 行号为0
-    newnode->emptyFlag = 0; // 终结符自然没有空产生式的子节点
-    newnode->endFlag = 1; //为终结符号
-    strcpy(newnode->shikibetsuko,name); // 节点的类别，通过字符形式表达
-    return newnode; // 返回创建的节点
-}
-//声明函数
-int OctalToInt(char* OCTAL);
-int HexToInt(char* HEX);
-int getIndexOfSigns(char ch);
+
 
 
 // 暂时停用的正则表达式，会识别09
 // FLOAT [-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?
-#line 647 "./lex.yy.c"
-#line 648 "./lex.yy.c"
+#line 635 "./lex.yy.c"
+#line 636 "./lex.yy.c"
 
 #define INITIAL 0
 
@@ -861,9 +849,9 @@ YY_DECL
 		}
 
 	{
-#line 54 "./lexical.l"
+#line 42 "./lexical.l"
 
-#line 867 "./lex.yy.c"
+#line 855 "./lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -933,7 +921,7 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 55 "./lexical.l"
+#line 43 "./lexical.l"
 {
     //遇到单行注释不进行处理
 }
@@ -941,7 +929,7 @@ YY_RULE_SETUP
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 59 "./lexical.l"
+#line 47 "./lexical.l"
 {
     //遇到多行注释同样不进行处理
     //且不考虑多行注释和单行注释嵌套的问题
@@ -949,7 +937,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 64 "./lexical.l"
+#line 52 "./lexical.l"
 {
         yylval = create_Node_lexical("SEMI\0"); //创建出来新的节点，并存到yylval
         return SEMI; //给语法分析器返回SEMI标志
@@ -957,7 +945,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 69 "./lexical.l"
+#line 57 "./lexical.l"
 {
         yylval = create_Node_lexical("COMMA\0"); 
         return COMMA; 
@@ -965,7 +953,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 74 "./lexical.l"
+#line 62 "./lexical.l"
 {
         yylval = create_Node_lexical("ASSIGNOP\0"); 
         return ASSIGNOP; 
@@ -973,7 +961,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 79 "./lexical.l"
+#line 67 "./lexical.l"
 {
         yylval = create_Node_lexical("RELOP\0"); 
         return RELOP; 
@@ -981,7 +969,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 84 "./lexical.l"
+#line 72 "./lexical.l"
 {
     yylval = create_Node_lexical("PLUS\0"); 
     return PLUS; 
@@ -989,7 +977,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 89 "./lexical.l"
+#line 77 "./lexical.l"
 {
     yylval = create_Node_lexical("MINUS\0"); 
     return MINUS; 
@@ -997,7 +985,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 94 "./lexical.l"
+#line 82 "./lexical.l"
 {
     yylval = create_Node_lexical("STAR\0"); 
     return STAR; 
@@ -1005,7 +993,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 99 "./lexical.l"
+#line 87 "./lexical.l"
 {
     yylval = create_Node_lexical("DIV\0"); 
     return DIV; 
@@ -1013,7 +1001,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 104 "./lexical.l"
+#line 92 "./lexical.l"
 {
     yylval = create_Node_lexical("AND\0"); 
     return AND; 
@@ -1021,7 +1009,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 109 "./lexical.l"
+#line 97 "./lexical.l"
 {
     yylval = create_Node_lexical("OR\0"); 
     return OR; 
@@ -1029,7 +1017,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 114 "./lexical.l"
+#line 102 "./lexical.l"
 {
     yylval = create_Node_lexical("DOT\0"); 
     return DOT; 
@@ -1037,7 +1025,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 119 "./lexical.l"
+#line 107 "./lexical.l"
 {
     yylval = create_Node_lexical("NOT\0"); 
     return NOT; 
@@ -1045,7 +1033,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 124 "./lexical.l"
+#line 112 "./lexical.l"
 {
     yylval = create_Node_lexical("TYPE\0"); 
     //对于type而言，识别到的类型要放到节点里面
@@ -1055,7 +1043,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 131 "./lexical.l"
+#line 119 "./lexical.l"
 {
     yylval = create_Node_lexical("LP\0"); 
     return LP; 
@@ -1063,7 +1051,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 136 "./lexical.l"
+#line 124 "./lexical.l"
 {
     yylval = create_Node_lexical("RP\0"); 
     return RP; 
@@ -1071,7 +1059,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 141 "./lexical.l"
+#line 129 "./lexical.l"
 {
     yylval = create_Node_lexical("LB\0"); 
     return LB; 
@@ -1079,7 +1067,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 146 "./lexical.l"
+#line 134 "./lexical.l"
 {
     yylval = create_Node_lexical("RB\0"); 
     return RB; 
@@ -1087,7 +1075,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 151 "./lexical.l"
+#line 139 "./lexical.l"
 {
     yylval = create_Node_lexical("LC\0"); 
     return LC; 
@@ -1095,7 +1083,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 156 "./lexical.l"
+#line 144 "./lexical.l"
 {
     yylval = create_Node_lexical("RC\0"); 
     return RC; 
@@ -1103,7 +1091,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 162 "./lexical.l"
+#line 150 "./lexical.l"
 {
     yylval = create_Node_lexical("STRUCT\0"); 
     return STRUCT; 
@@ -1111,7 +1099,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 167 "./lexical.l"
+#line 155 "./lexical.l"
 {
     yylval = create_Node_lexical("RETURN\0"); 
     return RETURN; 
@@ -1119,7 +1107,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 172 "./lexical.l"
+#line 160 "./lexical.l"
 {
     yylval = create_Node_lexical("IF\0"); 
     return IF; 
@@ -1127,7 +1115,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 177 "./lexical.l"
+#line 165 "./lexical.l"
 {
     yylval = create_Node_lexical("ELSE\0"); 
     return ELSE; 
@@ -1135,7 +1123,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 182 "./lexical.l"
+#line 170 "./lexical.l"
 {
     yylval = create_Node_lexical("WHILE\0"); 
     return WHILE; 
@@ -1143,18 +1131,18 @@ YY_RULE_SETUP
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 188 "./lexical.l"
+#line 176 "./lexical.l"
 {} //空白字符直接跳过
 	YY_BREAK
 case 28:
 /* rule 28 can match eol */
 YY_RULE_SETUP
-#line 190 "./lexical.l"
+#line 178 "./lexical.l"
 {yycolumn=1;} // 遇到换行符将col号调整为1
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 192 "./lexical.l"
+#line 180 "./lexical.l"
 {
     yylval = create_Node_lexical("INT\0"); 
     //识别到的数字要放到节点当中
@@ -1164,7 +1152,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 199 "./lexical.l"
+#line 187 "./lexical.l"
 {
     //八进制的数字一样要创建int
     yylval = create_Node_lexical("INT\0"); 
@@ -1175,7 +1163,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 207 "./lexical.l"
+#line 195 "./lexical.l"
 {
     //八进制的数字一样要创建int
     yylval = create_Node_lexical("INT\0"); 
@@ -1186,7 +1174,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 215 "./lexical.l"
+#line 203 "./lexical.l"
 {
     yylval = create_Node_lexical("FLOAT\0"); 
     // printf("检测到浮点数,%s",yytext);
@@ -1196,7 +1184,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 222 "./lexical.l"
+#line 210 "./lexical.l"
 {
     yylval = create_Node_lexical("ID\0"); 
     strcpy(yylval->char_name,yytext);
@@ -1205,7 +1193,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 228 "./lexical.l"
+#line 216 "./lexical.l"
 {
     errorFlag = 1; //发现词法分析错误
     char msg[32]; // 定义错误信息缓冲区
@@ -1215,10 +1203,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 234 "./lexical.l"
+#line 222 "./lexical.l"
 ECHO;
 	YY_BREAK
-#line 1222 "./lex.yy.c"
+#line 1210 "./lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2235,42 +2223,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 234 "./lexical.l"
+#line 222 "./lexical.l"
 
 
-int OctalToInt(char* OCTAL){
-    int i=1,n=0;
- 	while(OCTAL[i]!='\0'){//此处判断不能为‘null，否则会判定错误
- 		n=n*8+OCTAL[i]-'0';
- 		i++;
- 	}
- 	// printf("该八进制数转化为十进制数应为：%d\n",n);
-    return n;
-}
-
-int HexToInt(char* HEX){
-    int i=2,n=0;
- 	while(HEX[i]!='\0'){//此处判断不能为‘null，否则会判定错误
- 		n=n*16+getIndexOfSigns(HEX[i]);
- 		i++;
- 	}
- 	// printf("该十六进制数转化为十进制数应为：%d\n",n);
-    return n;
-}
-
-
-
-
-/* 返回ch字符在sign数组中的序号 */
-int getIndexOfSigns(char ch) {
-    if (ch >= '0' && ch <= '9') {
-        return ch - '0';
-    }
-    if (ch >= 'A' && ch <= 'F') {
-        return ch - 'A' + 10;
-    }
-    if (ch >= 'a' && ch <= 'f') {
-        return ch - 'a' + 10;
-    }
-    return -1;
-}

@@ -64,6 +64,11 @@ test:
 	./parser ./test/test10.cmm
 	./parser ./test/test11.cmm
 	./parser ./test/test12.cmm
+	./parser ./test/test13.cmm
+	./parser ./test/test14.cmm
+	./parser ./test/test15.cmm
+	./parser ./test/test16.cmm
+	./parser ./test/test17.cmm
 
 # 清理生成的文件
 clean:

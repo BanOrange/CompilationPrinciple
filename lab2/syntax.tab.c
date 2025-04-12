@@ -71,39 +71,12 @@
 # include <stdio.h>
 # include <string.h>
 # include <stdlib.h>
+# include "lex.yy.c"
+# include "node.h"
+# include "global.h" 
 
-// 定义了一个结构体 Node,表示语法树中的节点
-struct Node {
-    struct Node* child;    // 指向第一个子节点的指针
-    struct Node* brother;  // 指向后一个兄弟节点的指针，这样就可以连接起来所有的节点
-    int linenumber;        // 节点所在的行号
-    char shikibetsuko[32]; // 以字符形式表示的节点类型
-    short endFlag;  //判断是否为终结符
-    short emptyFlag; // 判断是否为语法单元并且产生空串，如果是的话那么就设置为1，反之设置为0
-    int childNumber; //表示子节点的数量
-    union {     //表示不同节点类型的值
-        char char_name[32]; // 字符串类型
-        int int_number;     // 整数类型
-        float float_number; // 浮点数类型
-    };
-};
 
-extern int yylineno;
-extern char* yytext;
-extern int yylex();
-void yyerror(const char* s); // 错误处理函数,暂时不需要，但是为了通过编译还是要加上
-
-int errorFlag = 0; //表示当前语法分析是否发生了错误
-int errorLine=0; //记录上一次发生错误的行号，通过对比即可知道是否为新错误
-
-#define YYSTYPE struct Node* // 定义 YYSTYPE 类型，词法分析的返回值
-
-struct Node* head=NULL; // 指向语法树的根节点
-struct Node* create_Node(struct Node* node,char* name,int line); //创建节点的函数
-void print_tree(struct Node* now,int depth); // 打印语法树
-void printError(char errorType, char* msg); // 打印错误信息
-
-#line 107 "./syntax.tab.c"
+#line 80 "./syntax.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -577,14 +550,14 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    83,    83,    92,    96,   104,   109,   113,   118,   125,
-     132,   135,   140,   149,   151,   155,   161,   166,   169,   173,
-     178,   180,   185,   194,   199,   203,   211,   215,   219,   225,
-     238,   241,   247,   250,   252,   256,   262,   270,   276,   299,
-     302,   307,   311,   318,   325,   327,   333,   335,   341,   345,
-     349,   353,   357,   361,   365,   369,   373,   377,   380,   383,
-     388,   392,   397,   401,   403,   405,   407,   411,   415,   419,
-     423,   429,   433
+       0,    56,    56,    68,    74,    82,    87,    91,    96,   103,
+     110,   113,   118,   127,   130,   135,   142,   148,   153,   158,
+     164,   167,   173,   182,   188,   193,   201,   206,   211,   218,
+     232,   237,   244,   248,   251,   256,   263,   272,   279,   302,
+     307,   313,   318,   325,   332,   335,   342,   345,   352,   357,
+     362,   367,   372,   377,   382,   387,   392,   397,   401,   405,
+     411,   416,   422,   427,   430,   433,   436,   440,   444,   448,
+     452,   458,   463
 };
 #endif
 
@@ -1582,74 +1555,79 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 83 "./syntax.y"
+#line 56 "./syntax.y"
                    {
     //检查是否为空串产生语法单元，是的话继续保持，反之更新行号
     if(yyvsp[0]->emptyFlag == 1){  
+
         yyval = create_Node(yyvsp[0],"Program\0",yyvsp[0]->emptyFlag);  //不需要打印了
+        yyval -> childNumber = 1;
     }else{
         yyval = create_Node(yyvsp[0],"Program\0",(yylsp[0]).first_line);
+        yyval -> childNumber = 1;
     }
+}
+#line 1571 "./syntax.tab.c"
+    break;
+
+  case 3:
+#line 68 "./syntax.y"
+           {
+    // $$ = NULL;
+    //空产生式，生成一个空的节点，同时将childNumber设为0
+    yyval = create_Node(NULL,"ExtDefList\0",yylineno);
+    yyval -> childNumber = 0;
+    yyval -> emptyFlag= 1;
+}
+#line 1583 "./syntax.tab.c"
+    break;
+
+  case 4:
+#line 74 "./syntax.y"
+                     {
+    //生成两个非终结符号，子节点数量为2
+    yyval = create_Node(yyvsp[-1],"ExtDefList\0",(yylsp[-1]).first_line);
+    yyval -> childNumber = 2;
+    //构建兄弟关系
+    yyvsp[-1] -> brother = yyvsp[0];
 }
 #line 1595 "./syntax.tab.c"
     break;
 
-  case 3:
-#line 92 "./syntax.y"
-           {
-    //空产生式，生成一个空的节点，同时将childNumber设为0
-    yyval = create_Node(NULL,"ExtDefList\0",yylineno);
-    yyval -> emptyFlag= 1;
-}
-#line 1605 "./syntax.tab.c"
-    break;
-
-  case 4:
-#line 96 "./syntax.y"
-                     {
-    //生成两个非终结符号，子节点数量为2
-    yyval = create_Node(yyvsp[-1],"ExtDefList\0",(yylsp[-1]).first_line);
-
-    //构建兄弟关系
-    yyvsp[-1] -> brother = yyvsp[0];
-}
-#line 1617 "./syntax.tab.c"
-    break;
-
   case 5:
-#line 104 "./syntax.y"
+#line 82 "./syntax.y"
                                 {
     yyval = create_Node(yyvsp[-2],"ExtDef\0",(yylsp[-2]).first_line);
     yyval -> childNumber = 3;
     yyvsp[-2] -> brother = yyvsp[-1];
     yyvsp[-1] -> brother = yyvsp[0];
 }
-#line 1628 "./syntax.tab.c"
+#line 1606 "./syntax.tab.c"
     break;
 
   case 6:
-#line 109 "./syntax.y"
+#line 87 "./syntax.y"
                   {
     yyval = create_Node(yyvsp[-1],"ExtDef\0",(yylsp[-1]).first_line);
     yyval -> childNumber = 2;
     yyvsp[-1] -> brother = yyvsp[0];
 }
-#line 1638 "./syntax.tab.c"
+#line 1616 "./syntax.tab.c"
     break;
 
   case 7:
-#line 113 "./syntax.y"
+#line 91 "./syntax.y"
                            {
     yyval = create_Node(yyvsp[-2],"ExtDef\0",(yylsp[-2]).first_line);
     yyval -> childNumber = 3;
     yyvsp[-2] -> brother = yyvsp[-1];
     yyvsp[-1] -> brother = yyvsp[0];
 }
-#line 1649 "./syntax.tab.c"
+#line 1627 "./syntax.tab.c"
     break;
 
   case 8:
-#line 118 "./syntax.y"
+#line 96 "./syntax.y"
                         {
     errorFlag = 1; 
     char msg[32]; 
@@ -1658,134 +1636,144 @@ yyreduce:
         printError('B', msg); 
     }   
 }
-#line 1662 "./syntax.tab.c"
+#line 1640 "./syntax.tab.c"
     break;
 
   case 9:
-#line 125 "./syntax.y"
+#line 103 "./syntax.y"
                    {  //用error指代错误，在SEMI等特殊位置附近
     errorFlag = 1; //发生了错误
     if(errorLine != yylineno){
         printError('B',"first Missing \";\"");
     }
 }
-#line 1673 "./syntax.tab.c"
+#line 1651 "./syntax.tab.c"
     break;
 
   case 10:
-#line 132 "./syntax.y"
+#line 110 "./syntax.y"
                  {
     yyval = create_Node(yyvsp[0],"ExtDecList",(yylsp[0]).first_line);
     yyval -> childNumber = 1;
 }
-#line 1682 "./syntax.tab.c"
+#line 1660 "./syntax.tab.c"
     break;
 
   case 11:
-#line 135 "./syntax.y"
+#line 113 "./syntax.y"
                            {
     yyval = create_Node(yyvsp[-2],"ExtDecList",(yylsp[-2]).first_line);
     yyval -> childNumber = 3;
     yyvsp[-2] -> brother = yyvsp[-1];
     yyvsp[-1] -> brother = yyvsp[0];
 }
-#line 1693 "./syntax.tab.c"
+#line 1671 "./syntax.tab.c"
     break;
 
   case 12:
-#line 140 "./syntax.y"
+#line 118 "./syntax.y"
                            {
     errorFlag = 1;
     if(errorLine != yylineno){
         printError('B',"text");
     }
 }
-#line 1704 "./syntax.tab.c"
+#line 1682 "./syntax.tab.c"
     break;
 
   case 13:
-#line 149 "./syntax.y"
+#line 127 "./syntax.y"
                {
     yyval = create_Node(yyvsp[0],"Specifier\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1;
 }
-#line 1712 "./syntax.tab.c"
+#line 1691 "./syntax.tab.c"
     break;
 
   case 14:
-#line 151 "./syntax.y"
+#line 130 "./syntax.y"
                    {
-    yyval = create_Node(yyvsp[0],"Specifier\0",(yylsp[0]).first_line); 
+    yyval = create_Node(yyvsp[0],"Specifier\0",(yylsp[0]).first_line);
+    yyval -> childNumber = 1; 
 }
-#line 1720 "./syntax.tab.c"
+#line 1700 "./syntax.tab.c"
     break;
 
   case 15:
-#line 155 "./syntax.y"
+#line 135 "./syntax.y"
                                             {
     yyval = create_Node(yyvsp[-4],"StructSpecifier\0",(yylsp[-4]).first_line); 
+    yyval -> childNumber = 5; 
     yyvsp[-4] -> brother=yyvsp[-3]; 
     yyvsp[-3] -> brother=yyvsp[-2]; 
     yyvsp[-2] -> brother=yyvsp[-1];
     yyvsp[-1] -> brother=yyvsp[0]; 
 }
-#line 1732 "./syntax.tab.c"
+#line 1713 "./syntax.tab.c"
     break;
 
   case 16:
-#line 161 "./syntax.y"
+#line 142 "./syntax.y"
               {
     yyval = create_Node(yyvsp[-1],"StructSpecifier\0",(yylsp[-1]).first_line); 
+    yyval -> childNumber = 2; 
     yyvsp[-1] -> brother=yyvsp[0];
 }
-#line 1741 "./syntax.tab.c"
+#line 1723 "./syntax.tab.c"
     break;
 
   case 17:
-#line 166 "./syntax.y"
+#line 148 "./syntax.y"
         {
+    // $$ = NULL;
     yyval = create_Node(NULL,"OptTag\0",0); 
+    yyval -> childNumber = 0;
     yyval -> emptyFlag = 1;   //表示该节点只有空产生式的子节点
 }
-#line 1750 "./syntax.tab.c"
+#line 1734 "./syntax.tab.c"
     break;
 
   case 18:
-#line 169 "./syntax.y"
+#line 153 "./syntax.y"
       {
     yyval = create_Node(yyvsp[0],"OptTag\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
-#line 1758 "./syntax.tab.c"
+#line 1743 "./syntax.tab.c"
     break;
 
   case 19:
-#line 173 "./syntax.y"
+#line 158 "./syntax.y"
       {
     yyval = create_Node(yyvsp[0],"Tag\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
-#line 1766 "./syntax.tab.c"
+#line 1752 "./syntax.tab.c"
     break;
 
   case 20:
-#line 178 "./syntax.y"
+#line 164 "./syntax.y"
          {
     yyval = create_Node(yyvsp[0],"VarDec\0",(yylsp[0]).first_line);
+    yyval -> childNumber = 1; 
 }
-#line 1774 "./syntax.tab.c"
+#line 1761 "./syntax.tab.c"
     break;
 
   case 21:
-#line 180 "./syntax.y"
+#line 167 "./syntax.y"
                     {
     yyval = create_Node(yyvsp[-3],"VarDec\0",(yylsp[-3]).first_line); 
+    yyval -> childNumber = 4; 
     yyvsp[-3] -> brother = yyvsp[-2];
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1785 "./syntax.tab.c"
+#line 1773 "./syntax.tab.c"
     break;
 
   case 22:
-#line 185 "./syntax.y"
+#line 173 "./syntax.y"
                        {
     errorFlag = 1; 
     char msg[32]; 
@@ -1794,32 +1782,34 @@ yyreduce:
         printError('B', msg); 
     }    
 }
-#line 1798 "./syntax.tab.c"
+#line 1786 "./syntax.tab.c"
     break;
 
   case 23:
-#line 194 "./syntax.y"
+#line 182 "./syntax.y"
                        {
     yyval = create_Node(yyvsp[-3],"FunDec\0",(yylsp[-3]).first_line); 
+    yyval -> childNumber = 4; 
     yyvsp[-3] -> brother = yyvsp[-2]; 
+    yyvsp[-2] -> brother = yyvsp[-1]; 
+    yyvsp[-1] -> brother = yyvsp[0]; 
+}
+#line 1798 "./syntax.tab.c"
+    break;
+
+  case 24:
+#line 188 "./syntax.y"
+            {
+    yyval = create_Node(yyvsp[-2],"FunDec\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
 #line 1809 "./syntax.tab.c"
     break;
 
-  case 24:
-#line 199 "./syntax.y"
-            {
-    yyval = create_Node(yyvsp[-2],"FunDec\0",(yylsp[-2]).first_line); 
-    yyvsp[-2] -> brother = yyvsp[-1]; 
-    yyvsp[-1] -> brother = yyvsp[0]; 
-}
-#line 1819 "./syntax.tab.c"
-    break;
-
   case 25:
-#line 203 "./syntax.y"
+#line 193 "./syntax.y"
                    {
     errorFlag = 1; 
     if (errorLine != yylineno){
@@ -1827,86 +1817,96 @@ yyreduce:
     }
         
 }
-#line 1831 "./syntax.tab.c"
+#line 1821 "./syntax.tab.c"
     break;
 
   case 26:
-#line 211 "./syntax.y"
+#line 201 "./syntax.y"
                               {
     yyval = create_Node(yyvsp[-2],"VarList\0",(yylsp[-2]).first_line);
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
+}
+#line 1832 "./syntax.tab.c"
+    break;
+
+  case 27:
+#line 206 "./syntax.y"
+            {
+    yyval = create_Node(yyvsp[0],"VarList\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
 #line 1841 "./syntax.tab.c"
     break;
 
-  case 27:
-#line 215 "./syntax.y"
-            {
-    yyval = create_Node(yyvsp[0],"VarList\0",(yylsp[0]).first_line); 
-}
-#line 1849 "./syntax.tab.c"
-    break;
-
   case 28:
-#line 219 "./syntax.y"
+#line 211 "./syntax.y"
                          {
     yyval = create_Node(yyvsp[-1],"ParamDec\0",(yylsp[-1]).first_line); 
+    yyval -> childNumber = 2; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1858 "./syntax.tab.c"
+#line 1851 "./syntax.tab.c"
     break;
 
   case 29:
-#line 225 "./syntax.y"
+#line 218 "./syntax.y"
                              {
-    yyval = create_Node(yyvsp[-3],"CompSt\0",(yylsp[-3]).first_line); 
+    yyval = create_Node(yyvsp[-3],"CompSt\0",(yylsp[-3]).first_line);
+    yyval -> childNumber = 4;  
     yyvsp[-3] -> brother = yyvsp[-2]; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1869 "./syntax.tab.c"
+#line 1863 "./syntax.tab.c"
     break;
 
   case 30:
-#line 238 "./syntax.y"
+#line 232 "./syntax.y"
           {
+    // $$ = NULL;
     yyval = create_Node(NULL,"StmtList\0",0); 
+    yyval -> childNumber = 0;
     yyval -> emptyFlag=1; 
 }
-#line 1878 "./syntax.tab.c"
+#line 1874 "./syntax.tab.c"
     break;
 
   case 31:
-#line 241 "./syntax.y"
+#line 237 "./syntax.y"
                  {
     yyval = create_Node(yyvsp[-1],"StmtList\0",(yylsp[-1]).first_line); 
+    yyval -> childNumber = 2;
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1887 "./syntax.tab.c"
+#line 1884 "./syntax.tab.c"
     break;
 
   case 32:
-#line 247 "./syntax.y"
+#line 244 "./syntax.y"
              {
     yyval = create_Node(yyvsp[-1],"Stmt\0",(yylsp[-1]).first_line); 
+    yyval -> childNumber = 2; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1896 "./syntax.tab.c"
+#line 1894 "./syntax.tab.c"
     break;
 
   case 33:
-#line 250 "./syntax.y"
+#line 248 "./syntax.y"
           {
     yyval = create_Node(yyvsp[0],"Stmt\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
-#line 1904 "./syntax.tab.c"
+#line 1903 "./syntax.tab.c"
     break;
 
   case 34:
-#line 252 "./syntax.y"
+#line 251 "./syntax.y"
                    {
     yyval = create_Node(yyvsp[-2],"Stmt\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
@@ -1917,18 +1917,20 @@ yyreduce:
 #line 256 "./syntax.y"
                                            {
     yyval = create_Node(yyvsp[-4],"Stmt\0",(yylsp[-4]).first_line); 
+    yyval -> childNumber = 5; 
     yyvsp[-4] -> brother = yyvsp[-3]; 
     yyvsp[-3] -> brother = yyvsp[-2]; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1926 "./syntax.tab.c"
+#line 1927 "./syntax.tab.c"
     break;
 
   case 36:
-#line 262 "./syntax.y"
+#line 263 "./syntax.y"
                                {
     yyval = create_Node(yyvsp[-6],"Stmt\0",(yylsp[-6]).first_line); 
+    yyval -> childNumber = 7; 
     yyvsp[-6] -> brother=yyvsp[-5]; 
     yyvsp[-5] -> brother=yyvsp[-4]; 
     yyvsp[-4] -> brother=yyvsp[-3]; 
@@ -1936,62 +1938,67 @@ yyreduce:
     yyvsp[-2] -> brother=yyvsp[-1]; 
     yyvsp[-1] -> brother=yyvsp[0]; 
 }
-#line 1940 "./syntax.tab.c"
+#line 1942 "./syntax.tab.c"
     break;
 
   case 37:
-#line 270 "./syntax.y"
+#line 272 "./syntax.y"
                         {
     yyval = create_Node(yyvsp[-4],"Stmt\0",(yylsp[-4]).first_line); 
+    yyval -> childNumber = 5; 
     yyvsp[-4] -> brother = yyvsp[-3]; 
     yyvsp[-3] -> brother = yyvsp[-2]; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1952 "./syntax.tab.c"
+#line 1955 "./syntax.tab.c"
     break;
 
   case 38:
-#line 276 "./syntax.y"
+#line 279 "./syntax.y"
               {
     errorFlag = 1; 
     if (errorLine != yylineno){
         printError('B', "second Missing \";\""); 
     }
 }
-#line 1963 "./syntax.tab.c"
+#line 1966 "./syntax.tab.c"
     break;
 
   case 39:
-#line 299 "./syntax.y"
+#line 302 "./syntax.y"
          {
+    // $$ = NULL;
     yyval = create_Node(NULL,"DefList\0",0); 
+    yyval -> childNumber = 0; 
     yyval -> emptyFlag = 1; 
 }
-#line 1972 "./syntax.tab.c"
+#line 1977 "./syntax.tab.c"
     break;
 
   case 40:
-#line 302 "./syntax.y"
+#line 307 "./syntax.y"
                {
     yyval = create_Node(yyvsp[-1],"DefList\0",(yylsp[-1]).first_line); 
+    yyval -> childNumber =2; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1981 "./syntax.tab.c"
+#line 1987 "./syntax.tab.c"
     break;
 
   case 41:
-#line 307 "./syntax.y"
+#line 313 "./syntax.y"
                           {
     yyval = create_Node(yyvsp[-2],"Def\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 1991 "./syntax.tab.c"
+#line 1998 "./syntax.tab.c"
     break;
 
   case 42:
-#line 311 "./syntax.y"
+#line 318 "./syntax.y"
                         {
     errorFlag = 1; 
     char msg[32]; 
@@ -2000,300 +2007,324 @@ yyreduce:
        printError('B', msg); 
     } 
 }
-#line 2004 "./syntax.tab.c"
+#line 2011 "./syntax.tab.c"
     break;
 
   case 43:
-#line 318 "./syntax.y"
+#line 325 "./syntax.y"
                             {
     errorFlag = 1; 
     if(errorLine != yylineno){
         printError('B',"fourth Missing \";\"");
     }
 }
-#line 2015 "./syntax.tab.c"
+#line 2022 "./syntax.tab.c"
     break;
 
   case 44:
-#line 325 "./syntax.y"
+#line 332 "./syntax.y"
            {
     yyval = create_Node(yyvsp[0],"DecList\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
-#line 2023 "./syntax.tab.c"
+#line 2031 "./syntax.tab.c"
     break;
 
   case 45:
-#line 327 "./syntax.y"
+#line 335 "./syntax.y"
                      {
     yyval = create_Node(yyvsp[-2],"DecList\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2033 "./syntax.tab.c"
+#line 2042 "./syntax.tab.c"
     break;
 
   case 46:
-#line 333 "./syntax.y"
+#line 342 "./syntax.y"
           {
-    yyval = create_Node(yyvsp[0],"Dec\0",(yylsp[0]).first_line); 
-}
-#line 2041 "./syntax.tab.c"
-    break;
-
-  case 47:
-#line 335 "./syntax.y"
-                       {
-    yyval = create_Node(yyvsp[-2],"Dec\0",(yylsp[-2]).first_line); 
-    yyvsp[-2] -> brother = yyvsp[-1]; 
-    yyvsp[-1] -> brother = yyvsp[0]; 
+    yyval = create_Node(yyvsp[0],"Dec\0",(yylsp[0]).first_line);
+    yyval -> childNumber = 1;  
 }
 #line 2051 "./syntax.tab.c"
     break;
 
-  case 48:
-#line 341 "./syntax.y"
-                    {
-    yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+  case 47:
+#line 345 "./syntax.y"
+                       {
+    yyval = create_Node(yyvsp[-2],"Dec\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2061 "./syntax.tab.c"
+#line 2062 "./syntax.tab.c"
+    break;
+
+  case 48:
+#line 352 "./syntax.y"
+                    {
+    yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
+    yyvsp[-2] -> brother = yyvsp[-1]; 
+    yyvsp[-1] -> brother = yyvsp[0]; 
+}
+#line 2073 "./syntax.tab.c"
     break;
 
   case 49:
-#line 345 "./syntax.y"
+#line 357 "./syntax.y"
                {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2071 "./syntax.tab.c"
+#line 2084 "./syntax.tab.c"
     break;
 
   case 50:
-#line 349 "./syntax.y"
+#line 362 "./syntax.y"
               {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2081 "./syntax.tab.c"
+#line 2095 "./syntax.tab.c"
     break;
 
   case 51:
-#line 353 "./syntax.y"
+#line 367 "./syntax.y"
                  {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2091 "./syntax.tab.c"
+#line 2106 "./syntax.tab.c"
     break;
 
   case 52:
-#line 357 "./syntax.y"
+#line 372 "./syntax.y"
                 {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2101 "./syntax.tab.c"
+#line 2117 "./syntax.tab.c"
     break;
 
   case 53:
-#line 361 "./syntax.y"
+#line 377 "./syntax.y"
                  {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother=yyvsp[-1]; 
     yyvsp[-1] -> brother=yyvsp[0]; 
 }
-#line 2111 "./syntax.tab.c"
+#line 2128 "./syntax.tab.c"
     break;
 
   case 54:
-#line 365 "./syntax.y"
+#line 382 "./syntax.y"
                 {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother=yyvsp[-1]; 
     yyvsp[-1] -> brother=yyvsp[0]; 
 }
-#line 2121 "./syntax.tab.c"
+#line 2139 "./syntax.tab.c"
     break;
 
   case 55:
-#line 369 "./syntax.y"
+#line 387 "./syntax.y"
                {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line);
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother=yyvsp[-1]; 
     yyvsp[-1] -> brother=yyvsp[0]; 
-}
-#line 2131 "./syntax.tab.c"
-    break;
-
-  case 56:
-#line 373 "./syntax.y"
-             {
-    yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
-    yyvsp[-2] -> brother=yyvsp[-1]; 
-    yyvsp[-1] -> brother=yyvsp[0]; 
-}
-#line 2141 "./syntax.tab.c"
-    break;
-
-  case 57:
-#line 377 "./syntax.y"
-                                  {
-    yyval = create_Node(yyvsp[-1],"Exp\0",(yylsp[-1]).first_line); 
-    yyvsp[-1] -> brother = yyvsp[0]; 
 }
 #line 2150 "./syntax.tab.c"
     break;
 
-  case 58:
-#line 380 "./syntax.y"
-           {
+  case 56:
+#line 392 "./syntax.y"
+             {
+    yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
+    yyvsp[-2] -> brother=yyvsp[-1]; 
+    yyvsp[-1] -> brother=yyvsp[0]; 
+}
+#line 2161 "./syntax.tab.c"
+    break;
+
+  case 57:
+#line 397 "./syntax.y"
+                                  {
     yyval = create_Node(yyvsp[-1],"Exp\0",(yylsp[-1]).first_line); 
+    yyval -> childNumber = 2; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2159 "./syntax.tab.c"
+#line 2171 "./syntax.tab.c"
+    break;
+
+  case 58:
+#line 401 "./syntax.y"
+           {
+    yyval = create_Node(yyvsp[-1],"Exp\0",(yylsp[-1]).first_line); 
+    yyval -> childNumber = 2; 
+    yyvsp[-1] -> brother = yyvsp[0]; 
+}
+#line 2181 "./syntax.tab.c"
     break;
 
   case 59:
-#line 383 "./syntax.y"
+#line 405 "./syntax.y"
                  {
     yyval = create_Node(yyvsp[-3],"Exp\0",(yylsp[-3]).first_line); 
+    yyval -> childNumber = 4; 
     yyvsp[-3] -> brother = yyvsp[-2]; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2170 "./syntax.tab.c"
+#line 2193 "./syntax.tab.c"
     break;
 
   case 60:
-#line 388 "./syntax.y"
+#line 411 "./syntax.y"
             {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2180 "./syntax.tab.c"
+#line 2204 "./syntax.tab.c"
     break;
 
   case 61:
-#line 392 "./syntax.y"
+#line 416 "./syntax.y"
                  {
     yyval = create_Node(yyvsp[-3],"Exp\0",(yylsp[-3]).first_line); 
+    yyval -> childNumber = 4; 
     yyvsp[-3] -> brother = yyvsp[-2]; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2191 "./syntax.tab.c"
+#line 2216 "./syntax.tab.c"
     break;
 
   case 62:
-#line 397 "./syntax.y"
+#line 422 "./syntax.y"
               {
     yyval = create_Node(yyvsp[-2],"Exp\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2201 "./syntax.tab.c"
+#line 2227 "./syntax.tab.c"
     break;
 
   case 63:
-#line 401 "./syntax.y"
+#line 427 "./syntax.y"
       {
     yyval = create_Node(yyvsp[0],"Exp\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
-#line 2209 "./syntax.tab.c"
+#line 2236 "./syntax.tab.c"
     break;
 
   case 64:
-#line 403 "./syntax.y"
+#line 430 "./syntax.y"
        {
     yyval = create_Node(yyvsp[0],"Exp\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
-#line 2217 "./syntax.tab.c"
+#line 2245 "./syntax.tab.c"
     break;
 
   case 65:
-#line 405 "./syntax.y"
+#line 433 "./syntax.y"
          {
-    yyval = create_Node(yyvsp[0],"Exp\0",(yylsp[0]).first_line); 
+    yyval = create_Node(yyvsp[0],"Exp\0",(yylsp[0]).first_line);
+    yyval -> childNumber = 1;  
 }
-#line 2225 "./syntax.tab.c"
+#line 2254 "./syntax.tab.c"
     break;
 
   case 66:
-#line 407 "./syntax.y"
+#line 436 "./syntax.y"
                     {
     errorFlag = 1; 
     if (errorLine != yylineno)
         printError('B', "Syntax error between \"[]\""); 
 }
-#line 2235 "./syntax.tab.c"
+#line 2264 "./syntax.tab.c"
     break;
 
   case 67:
-#line 411 "./syntax.y"
+#line 440 "./syntax.y"
                        {
     errorFlag = 1; 
     if (errorLine != yylineno) 
         printError('B', "Syntax error in Exp"); 
 }
-#line 2245 "./syntax.tab.c"
+#line 2274 "./syntax.tab.c"
     break;
 
   case 68:
-#line 415 "./syntax.y"
+#line 444 "./syntax.y"
                 {
     errorFlag = 1; 
     if (errorLine != yylineno) 
         printError('B', "Syntax error in Exp"); 
 }
-#line 2255 "./syntax.tab.c"
+#line 2284 "./syntax.tab.c"
     break;
 
   case 69:
-#line 419 "./syntax.y"
+#line 448 "./syntax.y"
                   {
     errorFlag = 1; 
     if (errorLine != yylineno) 
         printError('B', "Syntax error in Exp"); 
 }
-#line 2265 "./syntax.tab.c"
+#line 2294 "./syntax.tab.c"
     break;
 
   case 70:
-#line 423 "./syntax.y"
+#line 452 "./syntax.y"
                        {
     errorFlag = 1; 
     if (errorLine != yylineno) 
         printError('B', "fifth Missing \"]\"");
 }
-#line 2275 "./syntax.tab.c"
+#line 2304 "./syntax.tab.c"
     break;
 
   case 71:
-#line 429 "./syntax.y"
+#line 458 "./syntax.y"
                    {
     yyval = create_Node(yyvsp[-2],"Arg\0",(yylsp[-2]).first_line); 
+    yyval -> childNumber = 3; 
     yyvsp[-2] -> brother = yyvsp[-1]; 
     yyvsp[-1] -> brother = yyvsp[0]; 
 }
-#line 2285 "./syntax.tab.c"
+#line 2315 "./syntax.tab.c"
     break;
 
   case 72:
-#line 433 "./syntax.y"
+#line 463 "./syntax.y"
        {
     yyval = create_Node(yyvsp[0],"Args\0",(yylsp[0]).first_line); 
+    yyval -> childNumber = 1; 
 }
-#line 2293 "./syntax.tab.c"
+#line 2324 "./syntax.tab.c"
     break;
 
 
-#line 2297 "./syntax.tab.c"
+#line 2328 "./syntax.tab.c"
 
       default: break;
     }
@@ -2531,68 +2562,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 438 "./syntax.y"
+#line 469 "./syntax.y"
 
-#include "lex.yy.c"
 
-//需要给出节点的名称和行号
-struct Node* create_Node(struct Node* node, char* name, int line) {
-    // 分配内存空间
-    struct Node* newnode = (struct Node*)malloc(sizeof(struct Node));
-    // 设置节点属性
-    newnode->childNumber = 1; // judge为1表示非终结符
-    newnode->child = node; // 子节点
-    newnode->brother = NULL; // 兄弟节点
-    newnode->linenumber = line; // 行号
-    newnode->endFlag = 0; //默认为非终结符
-    newnode->emptyFlag = 0; //默认没有产生空串
-    newnode->int_number = 1; // 整型值
-    strcpy(newnode->shikibetsuko, name); // 名称
-    head = newnode; // 将当前节点设置为头节点
-    return newnode; // 返回新节点
-}
-
-// 打印节点信息
-void print_node(struct Node* now) {
-    // 终结符或者产生式不为空产生式
-    if (now->endFlag == 1 || now->emptyFlag == 0) {
-        if (!strcmp(now->shikibetsuko, "ID\0")) {
-            printf("ID: %s\n", now->char_name); // 标识符
-        } else if (!strcmp(now->shikibetsuko, "TYPE\0")) {
-            printf("TYPE: %s\n", now->char_name); // 类型
-        } else if (!strcmp(now->shikibetsuko, "INT\0")) {
-            printf("INT: %u\n", now->int_number); // 整型值
-        } else if (!strcmp(now->shikibetsuko, "FLOAT\0")) {
-            printf("FLOAT: %f\n", now->float_number); // 浮点数值
-        } else {
-            printf("%s\n", now->shikibetsuko); //如果是其他类型的节点，那么直接输出标识子即可
-        }
-    } else {
-        printf("%s (%d)\n", now->shikibetsuko, now->linenumber); // 输出非终结符节点信息
-    }
-}
-
-// 打印语法树
-void print_tree(struct Node* now, int depth) {
-    // 终结符和不产生空产生式的节点才可以被打印
-    if (now->endFlag == 1 || now->emptyFlag == 0) {
-        //根据当前节点所处的深度开始进行缩进
-        for (int i = 0; i < depth; ++i) printf("  ");
-        print_node(now);
-    }
-    //向下递进打印子节点和兄弟节点
-    if (now->child != NULL) print_tree(now->child, depth + 1);
-    if (now->brother != NULL) print_tree(now->brother, depth);
-    return;
-}
-
-// 打印错误信息
-void printError(char errorType, char* msg) {
-    // 打印错误类型和错误消息以及行号
-    fprintf(stderr, "Error type %c at Line %d: %s.\n", errorType, yylineno, msg);
-    errorLine = yylineno; 
-}
-
-//因为我们已经用PrintError函数对错误进行了处理，所以不需要用系统提供的函数
-void yyerror(const char* s) {}
 

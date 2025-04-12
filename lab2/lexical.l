@@ -3,9 +3,11 @@
 %{
 # include <stdio.h>
 # include <stdlib.h>
+# include "node.h"
 # include "syntax.tab.h"
-int yycolumn = 1; // 设置yycolumn 初始值为 1
+# include "global.h"
 
+int yycolumn = 1; // 设置yycolumn 初始值为 1
 
 #define YY_USER_ACTION\
     yylloc.first_line=yylloc.last_line=yylineno;\
@@ -14,21 +16,7 @@ int yycolumn = 1; // 设置yycolumn 初始值为 1
     yycolumn+=yyleng;  // 实验指导书的定义宏，更新行列信息
 
 
-struct Node* create_Node_lexical(char* name) {
-    struct Node* newnode=(struct Node*)malloc(sizeof(struct Node)); 
-    newnode->childNumber=0;  // 判别值为0
-    newnode->child=NULL; // 子节点为空
-    newnode->brother=NULL; // 兄弟节点为空
-    newnode->linenumber = 0; // 行号为0
-    newnode->emptyFlag = 0; // 终结符自然没有空产生式的子节点
-    newnode->endFlag = 1; //为终结符号
-    strcpy(newnode->shikibetsuko,name); // 节点的类别，通过字符形式表达
-    return newnode; // 返回创建的节点
-}
-//声明函数
-int OctalToInt(char* OCTAL);
-int HexToInt(char* HEX);
-int getIndexOfSigns(char ch);
+
 
 
 // 暂时停用的正则表达式，会识别09
@@ -232,40 +220,3 @@ COMMENTS \/\*([^*]|\*+[^\*\/])*\*+\/
     printError('A', msg); // 打印错误消息
 }
 %%
-
-int OctalToInt(char* OCTAL){
-    int i=1,n=0;
- 	while(OCTAL[i]!='\0'){//此处判断不能为‘null，否则会判定错误
- 		n=n*8+OCTAL[i]-'0';
- 		i++;
- 	}
- 	// printf("该八进制数转化为十进制数应为：%d\n",n);
-    return n;
-}
-
-int HexToInt(char* HEX){
-    int i=2,n=0;
- 	while(HEX[i]!='\0'){//此处判断不能为‘null，否则会判定错误
- 		n=n*16+getIndexOfSigns(HEX[i]);
- 		i++;
- 	}
- 	// printf("该十六进制数转化为十进制数应为：%d\n",n);
-    return n;
-}
-
-
-
-
-/* 返回ch字符在sign数组中的序号 */
-int getIndexOfSigns(char ch) {
-    if (ch >= '0' && ch <= '9') {
-        return ch - '0';
-    }
-    if (ch >= 'A' && ch <= 'F') {
-        return ch - 'A' + 10;
-    }
-    if (ch >= 'a' && ch <= 'f') {
-        return ch - 'a' + 10;
-    }
-    return -1;
-}
